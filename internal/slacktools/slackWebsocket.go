@@ -1,0 +1,90 @@
+package slacktools
+
+import (
+	"context"
+	"go-slack-message-client/internal/environment"
+	"go-slack-message-client/internal/models"
+	"log"
+	"os"
+
+	"go-slack-message-client/internal/logger"
+
+	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
+	"github.com/slack-go/slack/socketmode"
+)
+
+var payloadText string
+var payloadTS string
+var id int = 0
+var r models.MessageList
+var setup models.Messages
+var toGo []models.Messages
+
+func SlackSocket() {
+	logger, dispose := logger.New()
+	defer dispose()
+	env := environment.GetInstance()
+	token := env.SLACK_AUTH_TOKEN
+	appToken := env.SLACK_APP_TOKEN
+	client := slack.New(token, slack.OptionDebug(true), slack.OptionAppLevelToken(appToken))
+	socketClient := socketmode.New(
+		client,
+		socketmode.OptionDebug(true),
+		socketmode.OptionLog(log.New(os.Stdout, "socketmode: ", log.Lshortfile|log.LstdFlags)),
+	)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	r.Messages = make([]models.Messages, 0)
+
+	go func(ctx context.Context, client *slack.Client, socketClient *socketmode.Client) {
+		for {
+			select {
+			case <-ctx.Done():
+				logger.Error("Shutting down socketmode listener")
+				return
+			case event := <-socketClient.Events:
+				switch event.Type {
+				case socketmode.EventTypeEventsAPI:
+					eventsAPIEvent, ok := event.Data.(slackevents.EventsAPIEvent)
+					if !ok {
+						logger.Error("Failed to parse EventsAPIEvent")
+						continue
+					}
+					socketClient.Ack(*event.Request)
+					payloadText, payloadTS = HandleEventMessage(eventsAPIEvent)
+				}
+			}
+		}
+	}(ctx, client, socketClient)
+	socketClient.Run()
+}
+
+func HandleEventMessage(event slackevents.EventsAPIEvent) (string, string) {
+	innerEvent := event.InnerEvent
+	payloadText = innerEvent.Data.(*slackevents.MessageEvent).Text
+	payloadTS = innerEvent.Data.(*slackevents.MessageEvent).TimeStamp
+	return payloadText, payloadTS
+}
+
+func CheckNewMessages() []models.Messages {
+	logger, dispose := logger.New()
+	defer dispose()
+	if payloadTS == "" {
+		logger.Info("No new messages")
+	} else {
+		setup = models.Messages{ID: id, PayloadTS: payloadTS, PayloadText: payloadText}
+		if payloadText == "" {
+			toGo = r.Messages
+		} else {
+			toGo = append(toGo, setup)
+			id++
+			r.Messages = append(r.Messages, setup)
+			toGo = r.Messages
+			id++
+			payloadTS = ""
+		}
+	}
+	return toGo
+}
