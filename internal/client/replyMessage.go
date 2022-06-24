@@ -3,11 +3,12 @@ package client
 import (
 	"go-slack-message-client/internal/environment"
 	"go-slack-message-client/internal/logger"
+	"go-slack-message-client/internal/slacktools"
 
 	"github.com/slack-go/slack"
 )
 
-func ReplyMessage(PayloadTS string, PayloadText string) {
+func ReplyMessage(PayloadTS string, PayloadText string, Replied bool, ID int) {
 
 	logger, dispose := logger.New()
 	defer dispose()
@@ -33,5 +34,6 @@ func ReplyMessage(PayloadTS string, PayloadText string) {
 		logger.Error(err.Error())
 		return
 	}
+	slacktools.FlagReplied(ID)
 	logger.Info("Message Successfully Sent to" + channelID + " at " + timestamp)
 }

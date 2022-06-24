@@ -11,6 +11,8 @@ import (
 var Message models.Messages
 var PayloadText string
 var PayloadTS string
+var Replied bool
+var ID int
 
 func GetPayloadFrontEnd(c *gin.Context) {
 
@@ -26,7 +28,10 @@ func GetPayloadFrontEnd(c *gin.Context) {
 	}
 	PayloadText = body.PayloadText
 	PayloadTS = body.PayloadTS
+	Replied = body.Replied
+	ID = body.ID
+
 	logger.Info("PayloadText: " + PayloadText + " PayloadTS: " + PayloadTS)
 
-	ReplyMessage(PayloadTS, PayloadText)
+	ReplyMessage(PayloadTS, PayloadText, Replied, ID)
 }

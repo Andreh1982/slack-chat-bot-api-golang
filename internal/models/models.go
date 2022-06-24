@@ -78,4 +78,5 @@ type Messages struct {
 	ID          int    `json:"id"`
 	PayloadTS   string `json:"payloadts"`
 	PayloadText string `json:"payloadtext"`
+	Replied     bool   `json:"replied"`
 }

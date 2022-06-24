@@ -2,6 +2,7 @@ package slacktools
 
 import (
 	"context"
+	"fmt"
 	"go-slack-message-client/internal/environment"
 	"go-slack-message-client/internal/models"
 	"log"
@@ -17,6 +18,7 @@ import (
 var payloadText string
 var payloadTS string
 var id int = 0
+var replied bool = false
 var r models.MessageList
 var setup models.Messages
 var toGo []models.Messages
@@ -74,12 +76,11 @@ func CheckNewMessages() []models.Messages {
 	if payloadTS == "" {
 		logger.Info("No new messages")
 	} else {
-		setup = models.Messages{ID: id, PayloadTS: payloadTS, PayloadText: payloadText}
+		setup = models.Messages{ID: id, PayloadTS: payloadTS, PayloadText: payloadText, Replied: replied}
 		if payloadText == "" {
 			toGo = r.Messages
 		} else {
 			toGo = append(toGo, setup)
-			id++
 			r.Messages = append(r.Messages, setup)
 			toGo = r.Messages
 			id++
@@ -87,4 +88,12 @@ func CheckNewMessages() []models.Messages {
 		}
 	}
 	return toGo
+}
+
+func FlagReplied(ID int) {
+	logger, dispose := logger.New()
+	defer dispose() // Dispose of the logger
+
+	toGo[ID].Replied = true
+	logger.Info("Replied to message with id: " + fmt.Sprint(id))
 }
