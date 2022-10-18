@@ -1,14 +1,14 @@
 package main
 
 import (
-	"go-slack-message-client/internal/logger"
-	"go-slack-message-client/internal/routes"
-	"go-slack-message-client/internal/slacktools"
+	"slack-message-api/internal/infrastructure/routes"
+	"slack-message-api/internal/infrastructure/simlogger"
+	"slack-message-api/internal/infrastructure/slacktools"
 )
 
 func main() {
 
-	logger, dispose := logger.New()
+	logger, dispose := simlogger.New()
 	defer dispose()
 
 	logger.Info("Starting Worker")

@@ -1,4 +1,4 @@
-module go-slack-message-client
+module slack-message-api
 
 go 1.17
 
