@@ -1,15 +1,16 @@
-package slacktools
+package slackworker
 
 import (
 	"context"
 	"fmt"
-	"slack-message-api/internal/domain/slackmessagesapi"
-	"slack-message-api/internal/infrastructure/environment"
+	"slack-messages-api/internal/domain/appcontext"
+	"slack-messages-api/internal/domain/slackmessagesapi"
+	"slack-messages-api/internal/infrastructure/environment"
 
 	"log"
 	"os"
 
-	"slack-message-api/internal/infrastructure/simlogger"
+	"slack-messages-api/internal/infrastructure/logger"
 
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
@@ -20,12 +21,12 @@ var payloadText string
 var payloadTS string
 var id int = 0
 var replied bool = false
-var r slackmessageapi.MessageList
-var setup slackmessageapi.Messages
-var toGo []slackmessageapi.Messages
+var r slackmessagesapi.MessageList
+var setup slackmessagesapi.Messages
+var toGo []slackmessagesapi.Messages
 
-func SlackSocket() {
-	logger, dispose := simlogger.New()
+func StartPolling(appctx appcontext.Context, input Input) {
+	logger, dispose := logger.New()
 	defer dispose()
 	env := environment.GetInstance()
 	token := env.SLACK_AUTH_TOKEN
@@ -39,7 +40,7 @@ func SlackSocket() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	r.Messages = make([]slackmessageapi.Messages, 0)
+	r.Messages = make([]slackmessagesapi.Messages, 0)
 
 	go func(ctx context.Context, client *slack.Client, socketClient *socketmode.Client) {
 		for {
@@ -71,13 +72,13 @@ func HandleEventMessage(event slackevents.EventsAPIEvent) (string, string) {
 	return payloadText, payloadTS
 }
 
-func CheckNewMessages() []slackmessageapi.Messages {
-	logger, dispose := simlogger.New()
+func CheckNewMessages() []slackmessagesapi.Messages {
+	logger, dispose := logger.New()
 	defer dispose()
 	if payloadTS == "" {
 		logger.Info("No new messages")
 	} else {
-		setup = slackmessageapi.Messages{ID: id, PayloadTS: payloadTS, PayloadText: payloadText, Replied: replied}
+		setup = slackmessagesapi.Messages{ID: id, PayloadTS: payloadTS, PayloadText: payloadText, Replied: replied}
 		if payloadText == "" {
 			toGo = r.Messages
 		} else {
@@ -92,7 +93,7 @@ func CheckNewMessages() []slackmessageapi.Messages {
 }
 
 func FlagReplied(ID int) {
-	logger, dispose := simlogger.New()
+	logger, dispose := logger.New()
 	defer dispose() // Dispose of the logger
 
 	toGo[ID].Replied = true

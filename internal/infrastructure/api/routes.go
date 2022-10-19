@@ -1,17 +1,18 @@
-package routes
+package api
 
 import (
-	"slack-message-api/internal/infrastructure/client"
-	"slack-message-api/internal/infrastructure/slacktools"
+	"slack-messages-api/internal/domain/appcontext"
+	"slack-messages-api/internal/infrastructure/slackclient"
+	"slack-messages-api/internal/infrastructure/slackworker"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Interface interface {
-	Len() int
-	Less(i, j int) bool
-	Swap(i, j int)
-}
+// type Interface interface {
+// 	Len() int
+//	Less(i, j int) bool
+//	Swap(i, j int)
+//}
 
 // type ByID []models.Messages
 
@@ -19,19 +20,19 @@ type Interface interface {
 // func (a ByID) Less(i, j int) bool { return a[i].ID < a[j].ID }
 // func (a ByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-func MakeDefaultRoutes() {
+func MakeDefaultRoutes(ctx appcontext.Context) {
 	router := gin.Default()
 	router.Use(setupCors())
 	gin.SetMode("release")
 
-	router.GET("/slack-thread", newSlackThread)
-	router.POST("/slack-reply", client.GetPayloadFrontEnd)
+	router.GET("/slack-messages", checkNewMessages)
+	router.POST("/slack-reply", slackclient.GetPayloadFrontEnd)
 
 	router.Run(":9990")
 }
 
-func newSlackThread(c *gin.Context) {
-	responsePayload := slacktools.CheckNewMessages()
+func checkNewMessages(c *gin.Context) {
+	responsePayload := slackworker.CheckNewMessages()
 	// sortedPayload := sortStruct(responsePayload)
 	c.IndentedJSON(200, responsePayload)
 }

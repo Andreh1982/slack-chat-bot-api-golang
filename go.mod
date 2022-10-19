@@ -1,10 +1,11 @@
-module slack-message-api
+module slack-messages-api
 
 go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/joho/godotenv v1.4.0
+	github.com/satori/go.uuid v1.2.0
 	github.com/slack-go/slack v0.10.3
 	go.uber.org/zap v1.21.0
 )

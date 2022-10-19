@@ -1,9 +1,9 @@
-package client
+package slackclient
 
 import (
 	"encoding/json"
-	slackmessagesapi "slack-message-api/internal/domain/slackmessagesapi"
-	"slack-message-api/internal/infrastructure/simlogger"
+	slackmessagesapi "slack-messages-api/internal/domain/slackmessagesapi"
+	"slack-messages-api/internal/infrastructure/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ var ID int
 
 func GetPayloadFrontEnd(c *gin.Context) {
 
-	logger, dispose := simlogger.New()
+	logger, dispose := logger.New()
 	defer dispose()
 
 	body := slackmessagesapi.Messages{}

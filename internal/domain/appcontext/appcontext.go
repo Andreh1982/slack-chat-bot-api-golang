@@ -2,16 +2,16 @@ package appcontext
 
 import (
 	"context"
-	"slack-message-api/internal/infrastructure/simlogger/wrapper"
+	"slack-messages-api/internal/infrastructure/logger/logwrapper"
 )
 
 type Context interface {
-	SetLogger(logger wrapper.Logger)
-	Logger() wrapper.Logger
+	SetLogger(logger logwrapper.Logger)
+	Logger() logwrapper.Logger
 }
 
 type appContext struct {
-	logger wrapper.Logger
+	logger logwrapper.Logger
 	ctx    context.Context
 }
 
@@ -28,10 +28,10 @@ func NewBackground() Context {
 	}
 }
 
-func (appContext *appContext) SetLogger(logger wrapper.Logger) {
+func (appContext *appContext) SetLogger(logger logwrapper.Logger) {
 	appContext.logger = logger
 }
 
-func (appContext *appContext) Logger() wrapper.Logger {
+func (appContext *appContext) Logger() logwrapper.Logger {
 	return appContext.logger
 }

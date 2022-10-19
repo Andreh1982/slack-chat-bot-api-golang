@@ -1,16 +1,16 @@
-package client
+package slackclient
 
 import (
-	"slack-message-api/internal/infrastructure/environment"
-	"slack-message-api/internal/infrastructure/simlogger"
-	"slack-message-api/internal/infrastructure/slacktools"
+	"slack-messages-api/internal/infrastructure/environment"
+	"slack-messages-api/internal/infrastructure/logger"
+	"slack-messages-api/internal/infrastructure/slackworker"
 
 	"github.com/slack-go/slack"
 )
 
 func ReplyMessage(PayloadTS string, PayloadText string, Replied bool, ID int) {
 
-	logger, dispose := simlogger.New()
+	logger, dispose := logger.New()
 	defer dispose()
 
 	env := environment.GetInstance()
@@ -34,6 +34,6 @@ func ReplyMessage(PayloadTS string, PayloadText string, Replied bool, ID int) {
 		logger.Error(err.Error())
 		return
 	}
-	slacktools.FlagReplied(ID)
+	slackworker.FlagReplied(ID)
 	logger.Info("Message Successfully Sent to" + channelID + " at " + timestamp)
 }

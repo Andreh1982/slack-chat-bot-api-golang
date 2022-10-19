@@ -1,4 +1,4 @@
-package slackmessageapi
+package slackmessagesapi
 
 type PayloadConversationHistory struct {
 	Messages []struct {

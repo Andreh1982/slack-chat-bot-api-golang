@@ -1,14 +1,15 @@
-package simlogger
+package logger
 
 import (
 	"encoding/json"
 	"log"
 
-	"slack-message-api/internal/infrastructure/environment"
+	"slack-messages-api/internal/infrastructure/environment"
 
 	"go.uber.org/zap"
 )
 
+// New creates the logger
 func New() (*zap.Logger, func()) {
 	env := environment.GetInstance()
 	var cfg zap.Config

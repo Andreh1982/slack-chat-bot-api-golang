@@ -1,14 +1,14 @@
-package msbot
+package slackclient
 
 import (
-	"slack-message-api/internal/infrastructure/environment"
-	"slack-message-api/internal/infrastructure/simlogger"
+	"slack-messages-api/internal/infrastructure/environment"
+	"slack-messages-api/internal/infrastructure/logger"
 
 	"github.com/slack-go/slack"
 )
 
 func BotReply(PayloadText string, PayloadTS string) {
-	logger, dispose := simlogger.New()
+	logger, dispose := logger.New()
 	defer dispose()
 
 	env := environment.GetInstance()
